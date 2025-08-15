@@ -1,0 +1,75 @@
+package pr1.board.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import pr1.board.dto.PostRequestDto;
+import pr1.board.dto.PostResponseDto;
+import pr1.board.service.PostService;
+import pr1.board.service.UserDetailsImpl;
+
+import java.nio.file.AccessDeniedException;
+import java.util.List;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+
+    private final PostService postService;
+
+    @PostMapping
+    public ResponseEntity<Long> create(@RequestBody PostRequestDto dto) {
+        Long postId = postService.write(dto);
+        return ResponseEntity.ok(postId);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PostResponseDto>> getAll() {
+        List<PostResponseDto> allPosts = postService.getAllPosts();
+        return ResponseEntity.ok(allPosts);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updatePost(
+            @PathVariable Long id,
+            @RequestBody PostRequestDto dto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) throws AccessDeniedException {
+        postService.updatePost(id, dto,userDetails.getUser());
+        return ResponseEntity.noContent().build();  // 204 No Content: 수정 성공했으나, 응답 본문 없음
+    }
+
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Void> updatePost(@PathVariable Long id, @RequestBody PostRequestDto dto, User user) {
+//        postService.updatePost(id, dto,user);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+//        postService.deletePost(id);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+////    @GetMapping("/page")
+////    public ResponseEntity<Page<PostResponseDto>> getPostsByPage(
+////            @RequestParam(defaultValue = "0") int page,
+////            @RequestParam(defaultValue = "10") int size) {
+////        Page<PostResponseDto> pagePosts = postService.getPostsByPage(page, size);
+////        return ResponseEntity.ok(pagePosts);
+////    }
+//
+//    @GetMapping("/search")
+//    public ResponseEntity<List<PostResponseDto>> searchPosts(@RequestParam String keyword) {
+//        List<PostResponseDto> results = postService.searchPosts(keyword);
+//        return ResponseEntity.ok(results);
+//    }
+//
+//    @PostMapping("/{id}/like")
+//    public ResponseEntity<Void> likePost(@PathVariable Long id) {
+//        postService.likePost(id);
+//        return ResponseEntity.ok().build();
+//    }
+}
