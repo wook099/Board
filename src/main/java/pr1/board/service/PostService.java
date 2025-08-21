@@ -30,18 +30,29 @@ public class PostService {
         return savedPost.getId();
     }
 
-    public List<PostResponseDto> getAllPosts() {
-        return postRepository.findAll().stream()
-                .map(post -> new PostResponseDto(
-                        post.getId(),
-                        post.getTitle(),
-                        post.getContent(),
-                        post.getAuthor().getUsername()//조회시 N+1문제 발생!
-                )).collect(Collectors.toList());
-    }
+//    public List<PostResponseDto> getAllPosts() {
+//        return postRepository.findAll().stream()
+//                .map(post -> new PostResponseDto(
+//                        post.getId(),
+//                        post.getTitle(),
+//                        post.getContent(),
+//                        post.getAuthor().getUsername()//조회시 N+1문제 발생!
+//                )).collect(Collectors.toList());
+//    }
     //-------------
+//    public PostResponseDto getPost(Long id) {
+//        Post post = postRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다. id=" + id));
+//        return PostResponseDto.builder()
+//                .id(post.getId())
+//                .title(post.getTitle())
+//                .content(post.getContent())
+//                .writer(post.getAuthor().getUsername())
+//                .build();
+//    }
+
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getAllPosts1() {
+    public List<PostResponseDto> getAllPosts() {
         List<Post> posts = postRepository.findAllWithAuthor();
 
         return posts.stream()
@@ -54,7 +65,7 @@ public class PostService {
                 .toList();
     }
     @Transactional(readOnly = true)
-    public PostResponseDto getPost1(Long postId) {
+    public PostResponseDto getPost(Long postId) {
         Post post = postRepository.findByIdWithAuthor(postId)
                 .orElseThrow(() -> new RuntimeException("게시글 없음"));
 
@@ -66,19 +77,7 @@ public class PostService {
         );
     }
 
-    //==============
-    public PostResponseDto getPost(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다. id=" + id));
-        return PostResponseDto.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .writer(post.getAuthor().getUsername())
-                .build();
-    }
-
-    @Transactional  // DB 변경 작업이므로 트랜잭션 필요
+    @Transactional  // DB 변경 작업은 트랜잭션 필요
     public void updatePost(Long id, PostRequestDto dto, User user) throws AccessDeniedException {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글 없음"));

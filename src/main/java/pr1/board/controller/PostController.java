@@ -34,18 +34,21 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<PostResponseDto>> getAll() {
-        List<PostResponseDto> allPosts = postService.getAllPosts1();
+        List<PostResponseDto> allPosts = postService.getAllPosts();
         return ResponseEntity.ok(allPosts);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updatePost(
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<String> updatePost(
             @PathVariable Long id,
             @RequestBody PostRequestDto dto,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) throws AccessDeniedException {
+
+        User loginuser = userDetails.getUser();
+
         postService.updatePost(id, dto,userDetails.getUser());
-        return ResponseEntity.noContent().build();  // 204 No Content: 수정 성공했으나, 응답 본문 없음
+        return ResponseEntity.ok("수정 성공");
     }
 
 //    @PutMapping("/{id}")
