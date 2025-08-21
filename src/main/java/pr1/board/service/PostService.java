@@ -19,11 +19,11 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    public Long write(PostRequestDto dto) {
+    public Long write(PostRequestDto dto,User user) {
         Post post = Post.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .writer(dto.getWriter())
+                .author(user)
                 .build();
 
         Post savedPost = postRepository.save(post);
@@ -36,10 +36,37 @@ public class PostService {
                         post.getId(),
                         post.getTitle(),
                         post.getContent(),
-                        post.getWriter()
+                        post.getAuthor().getUsername()//조회시 N+1문제 발생!
                 )).collect(Collectors.toList());
     }
+    //-------------
+    @Transactional(readOnly = true)
+    public List<PostResponseDto> getAllPosts1() {
+        List<Post> posts = postRepository.findAllWithAuthor();
 
+        return posts.stream()
+                .map(p -> new PostResponseDto(
+                        p.getId(),
+                        p.getTitle(),
+                        p.getContent(),
+                        p.getAuthor().getUsername()
+                ))
+                .toList();
+    }
+    @Transactional(readOnly = true)
+    public PostResponseDto getPost1(Long postId) {
+        Post post = postRepository.findByIdWithAuthor(postId)
+                .orElseThrow(() -> new RuntimeException("게시글 없음"));
+
+        return new PostResponseDto(
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getAuthor().getUsername()
+        );
+    }
+
+    //==============
     public PostResponseDto getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 없습니다. id=" + id));
@@ -47,7 +74,7 @@ public class PostService {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .writer(post.getWriter())
+                .writer(post.getAuthor().getUsername())
                 .build();
     }
 

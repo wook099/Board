@@ -6,6 +6,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pr1.board.dto.PostRequestDto;
 import pr1.board.dto.PostResponseDto;
+import pr1.board.entity.User;
+import pr1.board.repository.UserRepository;
 import pr1.board.service.PostService;
 import pr1.board.service.UserDetailsImpl;
 
@@ -20,14 +22,19 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<Long> create(@RequestBody PostRequestDto dto) {
-        Long postId = postService.write(dto);
+    public ResponseEntity<Long> create(@RequestBody PostRequestDto dto,
+                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = userDetails.getUser();
+
+        Long postId = postService.write(dto,user);
+        System.out.println(user.getUsername());
+
         return ResponseEntity.ok(postId);
     }
 
     @GetMapping
     public ResponseEntity<List<PostResponseDto>> getAll() {
-        List<PostResponseDto> allPosts = postService.getAllPosts();
+        List<PostResponseDto> allPosts = postService.getAllPosts1();
         return ResponseEntity.ok(allPosts);
     }
 

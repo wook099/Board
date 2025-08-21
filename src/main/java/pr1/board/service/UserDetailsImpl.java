@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pr1.board.entity.User;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class UserDetailsImpl implements UserDetails {
 
@@ -20,8 +21,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 권한 정보 반환
-        return null; // 필요하면 구현
+        return Collections.emptyList();// 권한이 필요 없으면 비어있는 컬렉션
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import pr1.board.config.jwt.JwtAuthenticationFilter;
 import pr1.board.service.UserDetailsServiceImpl;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -14,6 +15,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+    private final JwtAuthenticationFilter jwtFilter;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, UserDetailsServiceImpl userDetailsService) {
+        this.jwtFilter = jwtFilter;
+        this.userDetailsService = userDetailsService;
+    }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -21,10 +30,17 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/signup", "/login").permitAll()  // 로그인/회원가입은 누구나 가능
+                        .requestMatchers("/auth/**",
+                                "/api/users/signup",
+                                "/api/users/login",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**").permitAll()  // 로그인/회원가입은 누구나 가능
                         .anyRequest().authenticated()  // 그 외 요청은 인증 필요
                 )
-                .formLogin(withDefaults()); // 기본 로그인 폼 사용 (테스트용)
+                .httpBasic(httpBasic -> httpBasic.disable())   // 기본 인증 비활성화
+                .formLogin(form -> form.disable())
+                .addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }

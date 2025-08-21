@@ -13,10 +13,4 @@ public class PostResponseDto {
     private String content;
     private String writer;
 
-    public PostResponseDto(Post post) {
-        this.id = post.getId();
-        this.title = post.getTitle();
-        this.content = post.getContent();
-        this.writer = post.getAuthor().getUsername(); // writer 필드에 맞게 수정
-    }
 }

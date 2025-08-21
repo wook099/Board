@@ -20,8 +20,6 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String writer;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author; // 이제 User 엔티티로 연관관계
