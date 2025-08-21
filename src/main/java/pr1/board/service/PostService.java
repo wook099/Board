@@ -10,6 +10,7 @@ import pr1.board.entity.User;
 import pr1.board.repository.PostRepository;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,4 +90,26 @@ public class PostService {
         post.update(dto);  // 엔티티 내에서 변경 메서드 호출 (dirty checking으로 자동 반영됨)
     }
 
+    public void deletePost(Long id,User user) throws AccessDeniedException{
+
+        Post post = postRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("해당 게시글 없음"));
+
+        if (!post.getAuthor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("작성자만 삭제가능");
+        }
+
+        if(post.isDeleted()) {
+            throw new IllegalStateException("이미 삭제된 게시글입니다.");
+        }
+
+        //post.delete(); delete삭제변수 상태변경
+        postRepository.delete(post);
+    }
+
+    public void purgeOldDeletedPosts() { // delete변수가 true인 경우에
+        LocalDateTime DayAgo = LocalDateTime.now().minusDays(7);//7일 지난시점
+        List<Post> oldDeletedPosts = postRepository.DeletedAtBefore(DayAgo);
+        postRepository.deleteAll(oldDeletedPosts); // 일주일 뒤에 물리 삭제
+    }
 }

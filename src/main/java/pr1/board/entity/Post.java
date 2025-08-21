@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import pr1.board.dto.PostRequestDto;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -24,8 +26,19 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User author; // 이제 User 엔티티로 연관관계
 
+    private boolean deleted = false;
+
+    private LocalDateTime deletedAt; // 삭제 시간 기록
+
     public void update(PostRequestDto dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
     }
+
+    public void delete() {
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+
 }

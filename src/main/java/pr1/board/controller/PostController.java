@@ -47,21 +47,22 @@ public class PostController {
 
         User loginuser = userDetails.getUser();
 
-        postService.updatePost(id, dto,userDetails.getUser());
+        postService.updatePost(id, dto,loginuser);
         return ResponseEntity.ok("수정 성공");
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Void> updatePost(@PathVariable Long id, @RequestBody PostRequestDto dto, User user) {
-//        postService.updatePost(id, dto,user);
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-//        postService.deletePost(id);
-//        return ResponseEntity.noContent().build();
-//    }
+
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<String> deletePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) throws AccessDeniedException {
+
+        User loginuser = userDetails.getUser();
+
+        postService.deletePost(id,loginuser);
+        return ResponseEntity.ok("삭제 성공");
+    }
 //
 ////    @GetMapping("/page")
 ////    public ResponseEntity<Page<PostResponseDto>> getPostsByPage(
