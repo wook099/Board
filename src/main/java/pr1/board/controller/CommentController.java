@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pr1.board.dto.CommentRequestDto;
 import pr1.board.dto.CommentResponseDto;
+import pr1.board.entity.User;
 import pr1.board.service.CommentService;
 import pr1.board.service.UserDetailsImpl;
 
@@ -29,6 +30,23 @@ public class CommentController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long postId) {
+
         return ResponseEntity.ok(commentService.getComments(postId));
+    }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDto> updateComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody CommentRequestDto dto){
+        return ResponseEntity.ok(commentService.updateComment(userDetails.getUser().getId(),commentId,dto.getContent()));
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long commentId) {
+        commentService.deleteComment(userDetails.getUser().getId(), commentId);
+        return ResponseEntity.ok("댓글 삭제 완료");
     }
 }

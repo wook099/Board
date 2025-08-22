@@ -1,7 +1,9 @@
 package pr1.board.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pr1.board.dto.CommentRequestDto;
 import pr1.board.dto.CommentResponseDto;
 import pr1.board.entity.Comment;
@@ -21,6 +23,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    // 댓글 작성
     public CommentResponseDto writeComment(Long userId, CommentRequestDto dto) {
         Post post = postRepository.findById(dto.getPostId())
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
@@ -44,6 +47,7 @@ public class CommentService {
                 .build();
     }
 
+    // 특정 게시물에 대한 댓글 조회
     public List<CommentResponseDto> getComments(Long postId) {
         return commentRepository.findByPostId(postId)
                 .stream()
@@ -54,5 +58,42 @@ public class CommentService {
                         .createdAt(c.getCreatedAt())
                         .build())
                 .toList();
+    }
+
+    //댓글 수정
+    @Transactional
+    public CommentResponseDto updateComment(Long userId, Long commentId, String content) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new AccessDeniedException("작성자만 수정 가능합니다.");
+        }
+
+        comment.setContent(content); // Comment값 변경
+        return toDto(comment);
+    }
+
+    // 댓글 삭제 (논리 삭제)
+    public void deleteComment(Long userId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new AccessDeniedException("작성자만 삭제 가능합니다.");
+        }
+
+        commentRepository.delete(comment);
+    }
+
+
+    private CommentResponseDto toDto(Comment comment) {
+        return CommentResponseDto.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .authorName(comment.getAuthor().getUsername())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .build();
     }
 }
