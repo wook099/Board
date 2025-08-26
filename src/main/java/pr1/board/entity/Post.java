@@ -24,11 +24,14 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User author; // 이제 User 엔티티로 연관관계
+    private User author; // 이제 User 엔티티로 연관관계 - 작성자
 
     private boolean deleted = false;
 
     private LocalDateTime deletedAt; // 삭제 시간 기록
+
+    @Transient//DB에 저장하지 않을 컬럼
+    private Long Likecnt;
 
     public void update(PostRequestDto dto) {
         this.title = dto.getTitle();

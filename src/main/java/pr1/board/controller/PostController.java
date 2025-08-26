@@ -8,6 +8,7 @@ import pr1.board.dto.PostRequestDto;
 import pr1.board.dto.PostResponseDto;
 import pr1.board.entity.User;
 import pr1.board.repository.UserRepository;
+import pr1.board.service.LikeService;
 import pr1.board.service.PostService;
 import pr1.board.service.UserDetailsImpl;
 
@@ -20,6 +21,7 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final LikeService likeService;
 
     @PostMapping
     public ResponseEntity<Long> create(@RequestBody PostRequestDto dto,
@@ -70,24 +72,16 @@ public class PostController {
         postService.deletePost(id,loginuser);
         return ResponseEntity.ok("삭제 성공");
     }
-//
-////    @GetMapping("/page")
-////    public ResponseEntity<Page<PostResponseDto>> getPostsByPage(
-////            @RequestParam(defaultValue = "0") int page,
-////            @RequestParam(defaultValue = "10") int size) {
-////        Page<PostResponseDto> pagePosts = postService.getPostsByPage(page, size);
-////        return ResponseEntity.ok(pagePosts);
-////    }
-//
-//    @GetMapping("/search")
-//    public ResponseEntity<List<PostResponseDto>> searchPosts(@RequestParam String keyword) {
-//        List<PostResponseDto> results = postService.searchPosts(keyword);
-//        return ResponseEntity.ok(results);
-//    }
-//
-//    @PostMapping("/{id}/like")
-//    public ResponseEntity<Void> likePost(@PathVariable Long id) {
-//        postService.likePost(id);
-//        return ResponseEntity.ok().build();
-//    }
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> likePost(@PathVariable Long postId, @RequestParam Long userId) {
+
+        boolean likeCount = likeService.toggleLike(postId, userId);
+        return ResponseEntity.ok(likeCount);
+    }
+
+    @GetMapping("/{postId}/like")
+    public ResponseEntity<Long> getLikeCount(@PathVariable Long postId) {
+        return ResponseEntity.ok(likeService.getLikeCount(postId));
+    }
 }

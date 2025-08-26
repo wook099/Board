@@ -1,6 +1,9 @@
 package pr1.board.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,11 +35,20 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
 
         User user = userService.login(loginRequestDto);
         String token = jwtUtil.generateToken(user.getUsername());
 
-        return ResponseEntity.ok(token); // 로그인 성공 시 User 정보 반환
+//        ResponseCookie cookie = ResponseCookie.from("JWT", token)
+//                .httpOnly(true)
+//                .secure(false)  // 개발용
+//                .path("/")
+//                .maxAge(3600)
+//                .sameSite("Lax") // ✅ Spring Framework ResponseCookie 지원
+//                .build();
+//        response.setHeader("Set-Cookie", cookie.toString());
+
+        return ResponseEntity.ok(token);
     }
 }
