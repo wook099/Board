@@ -14,15 +14,22 @@ server:
 # database ?? ??
 spring:
   datasource:
-
-
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1/noticeboard
     username: root
     password: 1234
   thymeleaf:
     cache: false
-
+  mail:
+    host: smtp.gmail.com # smtp 서버주소
+    port: 587 # TLS - HTTPS = HTTP + TLS
+    username: codnrud99@gmail.com  # 발신자
+    password: zsys uepc fewg ffuz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
 
 
   # spring data jpa ??

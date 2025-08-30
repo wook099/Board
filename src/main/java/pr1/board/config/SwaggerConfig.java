@@ -14,6 +14,7 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI studyAPI() {
+
         // API 기본 정보
         Info info = new Info()
                 .title("Board Server WorkBook API")

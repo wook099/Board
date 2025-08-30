@@ -1,6 +1,8 @@
 package pr1.board.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import pr1.board.repository.CommentRepository;
 import pr1.board.repository.PostRepository;
 import pr1.board.repository.UserRepository;
 
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -22,6 +25,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 댓글 작성
     public CommentResponseDto writeComment(Long userId, CommentRequestDto dto) {
@@ -38,6 +43,12 @@ public class CommentService {
                 .build();
 
         Comment saved = commentRepository.save(comment);
+
+        // WebSocket 알림 전송
+        String notificationMsg = saved.getAuthor().getUsername() + "님이 댓글을 작성했습니다!";
+        messagingTemplate.convertAndSend("/topic/notifications/" + post.getAuthor().getId(), notificationMsg);
+
+        System.out.println("[알림 전송] " + notificationMsg + " / 수신자: " + post.getAuthor().getId());
 
         return CommentResponseDto.builder()
                 .id(saved.getId())

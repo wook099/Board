@@ -30,7 +30,7 @@ public class Post {
 
     private LocalDateTime deletedAt; // 삭제 시간 기록
 
-    @Transient//DB에 저장하지 않을 컬럼
+    @Transient//DB에 저장하지 않을 컬럼 레디스로 관리함
     private Long Likecnt;
 
     public void update(PostRequestDto dto) {

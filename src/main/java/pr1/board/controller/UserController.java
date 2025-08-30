@@ -2,6 +2,7 @@ package pr1.board.controller;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class UserController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequestDto signupRequestDto){
+    public ResponseEntity<?> signup(@RequestBody @Valid SignupRequestDto signupRequestDto){
 
         User user = userService.signup(signupRequestDto);
         return ResponseEntity.ok(user);
@@ -51,4 +52,6 @@ public class UserController {
 
         return ResponseEntity.ok(token);
     }
+
+
 }

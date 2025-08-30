@@ -1,13 +1,13 @@
 package pr1.board.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -24,6 +24,8 @@ public class User{
     private String password;
 
     @Column(nullable = false)
+    @Email
+    @NotNull
     private String email;
 
     private String role; // ex: USER, ADMIN
