@@ -1,6 +1,6 @@
 package pr1.board.service;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,8 +23,12 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public String generateAuthCode(String email) {//인증번호 생성 5분
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthCodeSendException("등록되지 않은 이메일입니다."));
+
         try {
-            String code = String.format("%06d", new Random().nextInt(999999));
+            SecureRandom random = new SecureRandom();
+            String code = String.format("%06d", random.nextInt(1000000)); // 6자리 숫자
             redisTemplate.opsForValue().set("pwd_reset:" + email, code, 5, TimeUnit.MINUTES);
             return code;
         } catch (Exception e) {
@@ -49,7 +53,7 @@ public class AuthService {
 
     public String generateTempToken(String email) {// 임시 토큰생성
         String token = java.util.UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set("pwd_reset_token:" + token, email, 10, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set("pwd_reset_token:" + token, email, 5, TimeUnit.MINUTES);
         return token;
     }
 
